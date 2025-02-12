@@ -104,10 +104,16 @@
         function loginUser() {
             const loginIdentifier = document.getElementById('login-identifier').value;
             const loginPassword = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
 
             const user = users.find(user => (user.username === loginIdentifier || user.email === loginIdentifier) && user.password === loginPassword);
 
             if (user) {
+                if (rememberMe) {
+                    const expirationDate = new Date();
+                    expirationDate.setDate(expirationDate.getDate() + 30);
+                    document.cookie = `user=${JSON.stringify(user)}; expires=${expirationDate.toUTCString()}; path=/`;
+                }
                 alert('Login successful! Redirecting to your dashboard.');
                 // Redirect to the logged-in page or dashboard
                 window.location.href = "https://example.com/dashboard";
@@ -115,6 +121,22 @@
                 alert('Invalid username/email or password. Please try again.');
             }
         }
+
+        function checkRememberedUser() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.split('=');
+                if (name.trim() === 'user') {
+                    const user = JSON.parse(decodeURIComponent(value));
+                    document.getElementById('login-identifier').value = user.username || user.email;
+                    document.getElementById('login-password').value = user.password;
+                    document.getElementById('remember-me').checked = true;
+                    break;
+                }
+            }
+        }
+
+        window.onload = checkRememberedUser;
   </script>
  </head>
  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -148,7 +170,7 @@
       </div>
       <div class="flex items-center justify-between mb-6">
        <label class="flex items-center">
-        <input class="form-checkbox text-purple-500" type="checkbox"/>
+        <input class="form-checkbox text-purple-500" id="remember-me" type="checkbox"/>
         <span class="ml-2 text-gray-700">
          Remember Me
         </span>
