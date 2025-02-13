@@ -1,25 +1,29 @@
+<!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   FinTeens Login Page
-  </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
-  <style>
-   body {
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FinTeens Login Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
             font-family: 'Roboto', sans-serif;
         }
         .btn-expand:hover {
             transform: scale(1.05);
         }
-  </style>
-  <script>
-   let verificationCode;
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        let verificationCode;
         let users = [];
+
+        // Initialize EmailJS
+        (function(){
+            emailjs.init("EnT0CRXy-OnR9yfyX"); // Your EmailJS User ID
+        })();
 
         function toggleForm() {
             const loginForm = document.getElementById('login-form');
@@ -48,12 +52,27 @@
 
         function sendCode() {
             const email = document.getElementById('forgot-password-email').value;
-            if (email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
+            if (email && emailPattern.test(email)) {
                 verificationCode = Math.floor(100000 + Math.random() * 900000);
-                alert(`A verification code has been sent to ${email}: ${verificationCode}`);
-                showVerificationForm();
+                const templateParams = {
+                    to_name: "User", // Replace with the recipient's name or keep it generic
+                    from_name: "FinTeens Support", // Your application's name
+                    message: `Your verification code is: ${verificationCode}` // The message content
+                };
+
+                // Send email using EmailJS
+                emailjs.send('service_bup5vyj', 'template_mswi6cd', templateParams)
+                    .then(function(response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                        alert(`A verification code has been sent to ${email}`);
+                        showVerificationForm();
+                    }, function(error) {
+                        console.error('FAILED...', error);
+                        alert('Failed to send email. Please check your network and try again.');
+                    });
             } else {
-                alert('Please enter your email address.');
+                alert('Please enter a valid email address.');
             }
         }
 
@@ -137,147 +156,145 @@
         }
 
         window.onload = checkRememberedUser;
-  </script>
- </head>
- <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
-   <div class="w-1/2 p-10 flex flex-col justify-center items-center bg-gradient-to-r from-cyan-500 to-pink-500 text-white rounded-l-lg relative">
-    <img alt="Logo" class="absolute top-4 left-4 rounded-full" height="40" src="WhatsApp Image 2025-02-12 at 16.00.30.jpeg" width="40"/>
-    <h1 class="text-6xl font-bold mt-16" id="welcome-text">
-     Welcome Back!
-    </h1>
-   </div>
-   <div class="w-1/2 p-10">
-    <div id="login-form">
-     <h2 class="text-2xl font-bold mb-4">
-      Login
-     </h2>
-     <p class="text-gray-500 mb-6">
-      Welcome back! Please login to your account.
-     </p>
-     <form>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Username or Email ID
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="login-identifier" type="text"/>
-      </div>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Password
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="login-password" type="password"/>
-      </div>
-      <div class="flex items-center justify-between mb-6">
-       <label class="flex items-center">
-        <input class="form-checkbox text-purple-500" id="remember-me" type="checkbox"/>
-        <span class="ml-2 text-gray-700">
-         Remember Me
-        </span>
-       </label>
-       <a class="text-sm text-purple-500 hover:underline cursor-pointer" onclick="showForgotPasswordForm()">
-        Forgot Password?
-       </a>
-      </div>
-      <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="loginUser()" type="button">
-       Login
-      </button>
-      <button class="w-full bg-red-500 text-white p-3 rounded-lg font-bold hover:bg-red-600 btn-expand transition-transform duration-200 mt-4" onclick="loginWithGoogle()">
-       <i class="fab fa-google mr-2">
-       </i>
-       Login with Google
-      </button>
-     </form>
-     <p class="mt-6 text-center text-gray-500">
-      New User?
-      <a class="text-purple-500 hover:underline cursor-pointer" onclick="toggleForm()">
-       Signup
-      </a>
-     </p>
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
+        <div class="w-1/2 p-10 flex flex-col justify-center items-center bg-gradient-to-r from-cyan-500 to-pink-500 text-white rounded-l-lg relative">
+            <img alt="Logo" class="absolute top-4 left-4 rounded-full" height="40" src="WhatsApp Image 2025-02-12 at 16.00.30.jpeg" width="40"/>
+            <h1 class="text-6xl font-bold mt-16" id="welcome-text">
+                Welcome Back!
+            </h1>
+        </div>
+        <div class="w-1/2 p-10">
+            <div id="login-form">
+                <h2 class="text-2xl font-bold mb-4">
+                    Login
+                </h2>
+                <p class="text-gray-500 mb-6">
+                    Welcome back! Please login to your account.
+                </p>
+                <form>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Username or Email ID
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="login-identifier" type="text" title="Enter your username or email" placeholder="Username or Email"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Password
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="login-password" type="password" title="Enter your password" placeholder="Password"/>
+                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="flex items-center">
+                            <input class="form-checkbox text-purple-500" id="remember-me" type="checkbox"/>
+                            <span class="ml-2 text-gray-700">
+                                Remember Me
+                            </span>
+                        </label>
+                        <a class="text-sm text-purple-500 hover:underline cursor-pointer" onclick="showForgotPasswordForm()">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="loginUser()" type="button">
+                        Login
+                    </button>
+                    <button class="w-full bg-red-500 text-white p-3 rounded-lg font-bold hover:bg-red-600 btn-expand transition-transform duration-200 mt-4" onclick="loginWithGoogle()">
+                        <i class="fab fa-google mr-2"></i>
+                        Login with Google
+                    </button>
+                </form>
+                <p class="mt-6 text-center text-gray-500">
+                    New User?
+                    <a class="text-purple-500 hover:underline cursor-pointer" onclick="toggleForm()">
+                        Signup
+                    </a>
+                </p>
+            </div>
+            <div class="hidden" id="signup-form">
+                <h2 class="text-2xl font-bold mb-4">
+                    Signup
+                </h2>
+                <p class="text-gray-500 mb-6">
+                    Create a new account.
+                </p>
+                <form>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Create Username
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-username" type="text" title="Enter a username" placeholder="Username"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Email
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-email" type="email" title="Enter your email" placeholder="Email"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Create Password
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-password" type="password" title="Create a password" placeholder="Password"/>
+                    </div>
+                    <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="signupUser()" type="button">
+                        Signup
+                    </button>
+                    <button class="w-full bg-red-500 text-white p-3 rounded-lg font-bold hover:bg-red-600 btn-expand transition-transform duration-200 mt-4" onclick="loginWithGoogle()">
+                        <i class="fab fa-google mr-2"></i>
+                        Signup with Google
+                    </button>
+                </form>
+                <p class="mt-6 text-center text-gray-500">
+                    Already have an account?
+                    <a class="text-purple-500 hover:underline cursor-pointer" onclick="toggleForm()">
+                        Login
+                    </a>
+                </p>
+            </div>
+            <div class="hidden" id="forgot-password-form">
+                <h2 class="text-2xl font-bold mb-4">
+                    Forgot Password
+                </h2>
+                <p class="text-gray-500 mb-6">
+                    Enter your email to receive a verification code.
+                </p>
+                <form>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">
+                            Email
+                        </label>
+                        <input class="w-full p-3 border border-gray-300 rounded mt-1" id="forgot-password-email" type="email" title="Enter your email" placeholder="Email"/>
+                    </div>
+                    <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="sendCode()" type="button">
+                        Send Code
+                    </button>
+                </form>
+            </div>
+            <div class="hidden" id="verification-form">
+                <h2 class="text-2xl font-bold mb-4">
+                    Enter Verification Code
+                </h2>
+                <p class="text-gray-500 mb-6">
+                    Please enter the 6-digit code sent to your email.
+                </p>
+                <form>
+                    <div class="flex justify-between mb-4">
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                        <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)" title="Enter verification code digit" placeholder="0"/>
+                    </div>
+                    <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="verifyCode()" type="button">
+                        Verify Code
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="hidden" id="signup-form">
-     <h2 class="text-2xl font-bold mb-4">
-      Signup
-     </h2>
-     <p class="text-gray-500 mb-6">
-      Create a new account.
-     </p>
-     <form>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Create Username
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-username" type="text"/>
-      </div>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Email
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-email" type="email"/>
-      </div>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Create Password
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="signup-password" type="password"/>
-      </div>
-      <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="signupUser()" type="button">
-       Signup
-      </button>
-      <button class="w-full bg-red-500 text-white p-3 rounded-lg font-bold hover:bg-red-600 btn-expand transition-transform duration-200 mt-4" onclick="loginWithGoogle()">
-       <i class="fab fa-google mr-2">
-       </i>
-       Signup with Google
-      </button>
-     </form>
-     <p class="mt-6 text-center text-gray-500">
-      Already have an account?
-      <a class="text-purple-500 hover:underline cursor-pointer" onclick="toggleForm()">
-       Login
-      </a>
-     </p>
-    </div>
-    <div class="hidden" id="forgot-password-form">
-     <h2 class="text-2xl font-bold mb-4">
-      Forgot Password
-     </h2>
-     <p class="text-gray-500 mb-6">
-      Enter your email to receive a verification code.
-     </p>
-     <form>
-      <div class="mb-4">
-       <label class="block text-gray-700">
-        Email
-       </label>
-       <input class="w-full p-3 border border-gray-300 rounded mt-1" id="forgot-password-email" type="email"/>
-      </div>
-      <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="sendCode()" type="button">
-       Send Code
-      </button>
-     </form>
-    </div>
-    <div class="hidden" id="verification-form">
-     <h2 class="text-2xl font-bold mb-4">
-      Enter Verification Code
-     </h2>
-     <p class="text-gray-500 mb-6">
-      Please enter the 6-digit code sent to your email.
-     </p>
-     <form>
-      <div class="flex justify-between mb-4">
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-       <input class="w-12 p-3 border border-gray-300 rounded text-center verification-code-input" maxlength="1" type="text" oninput="moveToNextInput(event)"/>
-      </div>
-      <button class="w-full bg-purple-500 text-white p-3 rounded-lg font-bold hover:bg-purple-600 btn-expand transition-transform duration-200" onclick="verifyCode()" type="button">
-       Verify Code
-      </button>
-     </form>
-    </div>
-   </div>
-  </div>
- </body>
+</body>
 </html>
