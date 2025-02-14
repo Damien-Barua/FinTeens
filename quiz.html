@@ -1,0 +1,497 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Quiz Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+    .option-button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #e0f7fa, #00bcd4); /* Gradient cyan blue with a bit of white */
+      font-weight: bold;
+    }
+    .option-button.selected {
+      background: linear-gradient(90deg, #00bcd4, #e0f7fa); /* Gradient cyan blue with a bit of white */
+      color: white;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none;
+    }
+    .oval-button {
+      border-radius: 9999px;
+      transition: transform 0.2s, background-color 0.2s, color 0.2s;
+      font-weight: bold;
+      border: 2px solid;
+    }
+    .oval-button:hover {
+      transform: scale(1.05);
+    }
+    #back-button {
+      background-color: white;
+      color: black;
+      border-color: black;
+    }
+    #back-button:hover {
+      background-color: black;
+      color: white;
+    }
+    #next-button, #go-dashboard-button {
+      background-color: white;
+      color: black;
+      border-color: black;
+    }
+    #next-button:hover, #go-dashboard-button:hover {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6); /* Gradient blue */
+      color: white;
+    }
+    #submit-button, #start-button {
+      background-color: white;
+      color: black;
+      border-color: black;
+    }
+    #submit-button:hover, #start-button:hover {
+      background: linear-gradient(90deg, #6a0dad, #b19cd9); /* Gradient purple */
+      color: white;
+    }
+    .question-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 5px;
+      border: 2px solid black;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s, color 0.2s;
+    }
+    .question-circle.attempted {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6); /* Gradient blue */
+      color: white;
+    }
+    .question-circle:hover {
+      transform: scale(1.1);
+    }
+    body {
+      background-color: rgba(0,0,0,0);
+      backdrop-filter: blur(40px);
+      transform: scale(1);
+      border-radius: 24px;
+      -webkit-backdrop-filter: saturate(180%) blur(40px);
+      backdrop-filter: saturate(180%) blur(40px);
+    }
+    .glassy {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .question-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      text-align: center;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const originalQuestions = [
+        {
+          question: "What is the primary objective of monetary policy?",
+          options: ["Control inflation", "Increase employment", "Reduce poverty", "Balance the budget"],
+          answer: "Control inflation"
+        },
+        {
+          question: "Which economic theory is associated with John Maynard Keynes?",
+          options: ["Classical Economics", "Keynesian Economics", "Monetarism", "Supply-Side Economics"],
+          answer: "Keynesian Economics"
+        },
+        {
+          question: "What is the law of diminishing marginal utility?",
+          options: ["As consumption increases, the marginal utility derived from each additional unit declines", "As consumption increases, the total utility derived from each additional unit increases", "As consumption increases, the marginal utility derived from each additional unit increases", "As consumption increases, the total utility derived from each additional unit declines"],
+          answer: "As consumption increases, the marginal utility derived from each additional unit declines"
+        },
+        {
+          question: "What is the primary function of the World Trade Organization (WTO)?",
+          options: ["To regulate international trade", "To provide loans to developing countries", "To control global oil prices", "To monitor global financial stability"],
+          answer: "To regulate international trade"
+        },
+        {
+          question: "Which of the following is a characteristic of a perfectly competitive market?",
+          options: ["Many buyers and sellers", "Product differentiation", "Barriers to entry", "Price setting by firms"],
+          answer: "Many buyers and sellers"
+        },
+        {
+          question: "What is the main purpose of fiscal policy?",
+          options: ["To manage government spending and taxation", "To control the money supply", "To regulate international trade", "To stabilize the financial system"],
+          answer: "To manage government spending and taxation"
+        },
+        {
+          question: "What is the concept of opportunity cost?",
+          options: ["The cost of the next best alternative foregone", "The cost of all alternatives foregone", "The cost of production", "The cost of goods sold"],
+          answer: "The cost of the next best alternative foregone"
+        },
+        {
+          question: "Which of the following is a tool of monetary policy?",
+          options: ["Open market operations", "Government spending", "Taxation", "Subsidies"],
+          answer: "Open market operations"
+        },
+        {
+          question: "What is the primary goal of supply-side economics?",
+          options: ["To increase production and supply", "To control inflation", "To reduce government spending", "To balance the budget"],
+          answer: "To increase production and supply"
+        },
+        {
+          question: "What is the definition of Gross Domestic Product (GDP)?",
+          options: ["The total value of all goods and services produced within a country in a given period", "The total value of all goods and services produced by a country's citizens", "The total value of all goods and services consumed within a country", "The total value of all goods and services exported by a country"],
+          answer: "The total value of all goods and services produced within a country in a given period"
+        },
+        {
+          question: "If the marginal propensity to consume (MPC) is 0.8, what is the multiplier effect?",
+          options: ["2", "4", "5", "10"],
+          answer: "5"
+        },
+        {
+          question: "If the nominal GDP of a country is $1 trillion and the GDP deflator is 125, what is the real GDP?",
+          options: ["$800 billion", "$1.25 trillion", "$750 billion", "$1 trillion"],
+          answer: "$800 billion"
+        },
+        {
+          question: "If the interest rate is 5% and the inflation rate is 2%, what is the real interest rate?",
+          options: ["3%", "7%", "2.5%", "5%"],
+          answer: "3%"
+        },
+        {
+          question: "If the price elasticity of demand for a product is -2, what will be the percentage change in quantity demanded if the price increases by 10%?",
+          options: ["-20%", "-10%", "20%", "10%"],
+          answer: "-20%"
+        },
+        {
+          question: "If the reserve requirement is 10%, what is the maximum amount of money that can be created by the banking system from an initial deposit of $1,000?",
+          options: ["$10,000", "$1,000", "$9,000", "$100,000"],
+          answer: "$10,000"
+        },
+        {
+          question: "If the velocity of money is 5 and the money supply is $2 trillion, what is the nominal GDP?",
+          options: ["$10 trillion", "$5 trillion", "$2 trillion", "$1 trillion"],
+          answer: "$10 trillion"
+        },
+        {
+          question: "If the marginal cost of producing an additional unit is $50 and the marginal revenue is $60, what is the profit from producing the additional unit?",
+          options: ["$10", "$50", "$60", "$110"],
+          answer: "$10"
+        },
+        {
+          question: "If the price of a good increases from $10 to $15 and the quantity demanded decreases from 100 units to 80 units, what is the price elasticity of demand?",
+          options: ["-0.5", "-1", "-1.5", "-2"],
+          answer: "-0.5"
+        },
+        {
+          question: "If the government increases spending by $200 billion and the marginal propensity to consume is 0.75, what is the total increase in GDP?",
+          options: ["$800 billion", "$600 billion", "$400 billion", "$200 billion"],
+          answer: "$800 billion"
+        },
+        {
+          question: "If the inflation rate is 3% and the nominal interest rate is 6%, what is the real interest rate?",
+          options: ["3%", "6%", "9%", "2%"],
+          answer: "3%"
+        }
+      ];
+
+      let currentQuestionIndex = 0;
+      const questionContainer = document.getElementById('question-container');
+      const nextButton = document.getElementById('next-button');
+      const backButton = document.getElementById('back-button');
+      const submitButton = document.getElementById('submit-button');
+      const questionNumber = document.getElementById('question-number');
+      const startButton = document.getElementById('start-button');
+      const timerElement = document.getElementById('timer');
+      const questionCirclesContainer = document.getElementById('question-circles-container');
+      const selectedAnswers = new Array(originalQuestions.length).fill(null);
+      let score = 0;
+      let timer;
+      let timerInterval;
+      let questions = [];
+      let lastSubmittedTime = null;
+
+      function shuffleQuestions() {
+        questions = originalQuestions.sort(() => Math.random() - 0.5);
+      }
+
+      function displayQuestion(index) {
+        const question = questions[index];
+        questionContainer.innerHTML = `
+          <div class="question-container mb-6">
+            <p class="text-lg text-gray-700 text-center">${question.question}</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            ${question.options.map((option, i) => `
+              <button class="option-button bg-gray-100 text-gray-700 py-2 px-4 rounded-lg ${selectedAnswers[index] === i ? 'selected' : ''}" data-index="${i}">${option}</button>
+            `).join('')}
+          </div>
+        `;
+        questionNumber.textContent = `Question ${index + 1} of ${questions.length}`;
+
+        const optionButtons = document.querySelectorAll('.option-button');
+        optionButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            if (button.classList.contains('selected')) {
+              button.classList.remove('selected');
+              selectedAnswers[index] = null;
+            } else {
+              optionButtons.forEach(btn => btn.classList.remove('selected'));
+              button.classList.add('selected');
+              selectedAnswers[index] = parseInt(button.getAttribute('data-index'));
+            }
+            updateQuestionCircles();
+          });
+        });
+
+        if (index === 0) {
+          backButton.style.display = 'none';
+        } else {
+          backButton.style.display = 'inline-block';
+        }
+
+        if (index === questions.length - 1) {
+          nextButton.style.display = 'none';
+          submitButton.classList.remove('hidden');
+        } else {
+          nextButton.style.display = 'inline-block';
+          submitButton.classList.add('hidden');
+        }
+
+        if (index < questions.length - 1) {
+          nextButton.classList.remove('mx-auto');
+        } else {
+          nextButton.classList.add('mx-auto');
+        }
+
+        if (currentQuestionIndex >= questions.length - 1) {
+          submitButton.classList.remove('hidden');
+        }
+      }
+
+      function updateQuestionCircles() {
+        questionCirclesContainer.innerHTML = '';
+        for (let i = 0; i < questions.length; i++) {
+          const circle = document.createElement('div');
+          circle.classList.add('question-circle');
+          if (selectedAnswers[i] !== null) {
+            circle.classList.add('attempted');
+          }
+          circle.textContent = i + 1;
+          circle.addEventListener('click', () => {
+            currentQuestionIndex = i;
+            displayQuestion(currentQuestionIndex);
+          });
+          circle.addEventListener('mouseover', () => {
+            const audio = new Audio('one-popping-sound-96661.mp3');
+            audio.play();
+          });
+          questionCirclesContainer.appendChild(circle);
+        }
+      }
+
+      function nextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+          currentQuestionIndex++;
+          displayQuestion(currentQuestionIndex);
+        }
+      }
+
+      function backQuestion() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          displayQuestion(currentQuestionIndex);
+        }
+      }
+
+      function submitQuiz() {
+        clearInterval(timerInterval); // Stop the timer
+        lastSubmittedTime = new Date().getTime(); // Store the current time
+        selectedAnswers.forEach((answer, index) => {
+          if (answer !== null) {
+            if (questions[index].options[answer] === questions[index].answer) {
+              score += 5;
+            } else {
+              score -= 1;
+            }
+          }
+        });
+
+        const resultMessage = score >= 33 ? 'Pass' : 'Fail';
+        questionContainer.innerHTML = `
+          <div class="text-center mb-6">
+            <p class="text-lg text-gray-700">Your score is: ${score}</p>
+            <p class="text-lg text-gray-700">You ${resultMessage}</p>
+            <h3 class="text-lg text-gray-700 mt-4">Review of your answers:</h3>
+            <ul class="text-left">
+              ${questions.map((q, i) => {
+                const userAnswer = selectedAnswers[i] !== null ? questions[i].options[selectedAnswers[i]] : "Not answered";
+                const correctAnswer = questions[i].answer;
+                const isCorrect = userAnswer === correctAnswer;
+                return `
+                  <li class="${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                    Q${i + 1}: ${q.question} <br>
+                    Your answer: ${userAnswer} <br>
+                    Correct answer: ${correctAnswer}
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+            <button id="go-dashboard-button" class="oval-button bg-white text-black py-2 px-6 mt-4">Go to Dashboard</button>
+          </div>
+        `;
+        nextButton.style.display = 'none';
+        backButton.style.display = 'none';
+        submitButton.style.display = 'none';
+
+        if (score >= 33) {
+          confetti();
+          playVictorySound();
+          startTimer(24 * 60 * 60); // Start 24-hour countdown for new questions
+        } else {
+          playSadTrumpetSound(); // Play sad trumpet sound on fail
+          startTimer(24 * 60 * 60); // Start 24-hour countdown for same questions
+        }
+
+        // Add event listener for the dashboard button
+        document.getElementById('go-dashboard-button').addEventListener('click', () => {
+          window.location.href = 'lmao.html'; // Redirect to lmao.html
+        });
+      }
+
+      function startQuiz() {
+        shuffleQuestions(); // Shuffle questions at the start of the quiz
+        startButton.style.display = 'none';
+        questionContainer.classList.remove('hidden');
+        nextButton.classList.remove('hidden');
+        backButton.classList.remove('hidden');
+        questionNumber.classList.remove('hidden');
+        timerElement.classList.remove('hidden');
+        questionCirclesContainer.classList.remove('hidden');
+        displayQuestion(currentQuestionIndex);
+        startTimer(90 * 60); // Start 90-minute timer for the quiz
+        updateQuestionCircles();
+      }
+
+      function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        timerInterval = setInterval(() => {
+          minutes = parseInt(timer / 60, 10);
+          seconds = parseInt(timer % 60, 10);
+
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+
+          timerElement.textContent = minutes + ":" + seconds;
+
+          if (--timer < 0) {
+            clearInterval(timerInterval);
+            submitQuiz();
+          }
+        }, 1000);
+      }
+
+      function startCountdown() {
+        const now = new Date().getTime();
+        const timeDiff = lastSubmittedTime + (24 * 60 * 60 * 1000) - now; // 24 hours in milliseconds
+
+        if (timeDiff > 0) {
+          let timer = timeDiff / 1000; // Convert to seconds
+          let countdownInterval = setInterval(() => {
+            let minutes = parseInt(timer / 60, 10);
+            let seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            timerElement.textContent = `Next quiz in: ${minutes}:${seconds}`;
+
+            if (--timer < 0) {
+              clearInterval(countdownInterval);
+              timerElement.textContent = "Time's up! You can take the quiz now.";
+              startButton.style.display = 'block'; // Show start button after countdown
+            }
+          }, 1000);
+        } else {
+          startButton.style.display = 'block'; // Show start button immediately if 24 hours have passed
+        }
+      }
+
+      function confetti() {
+        const confettiElement = document.createElement('div');
+        confettiElement.innerHTML = `
+          <div class="fixed inset-0 flex items-center justify-center">
+            <div class="confetti"></div>
+          </div>
+        `;
+        document.body.appendChild(confettiElement);
+      }
+
+      function playVictorySound() {
+        const audio = new Audio('goodresult-82807.mp3');
+        audio.play();
+      }
+
+      function playSadTrumpetSound() {
+        const audio = new Audio('sad-trumpet-46384.mp3'); // Using the sad trumpet sound file
+        audio.play();
+      }
+
+      // Check if the quiz was submitted before and start the countdown
+      if (localStorage.getItem('lastSubmittedTime')) {
+        lastSubmittedTime = parseInt(localStorage.getItem('lastSubmittedTime'));
+        startCountdown();
+      }
+
+      startButton.addEventListener('click', startQuiz);
+      nextButton.addEventListener('click', nextQuestion);
+      backButton.addEventListener('click', backQuestion);
+      submitButton.addEventListener('click', () => {
+        localStorage.setItem('lastSubmittedTime', new Date().getTime()); // Store the submission time
+        submitQuiz();
+      });
+    });
+  </script>
+</head>
+<body class="bg-gradient-to-r from-blue-500 to-magenta-500 flex items-center justify-center min-h-screen">
+  <div class="bg-white bg-opacity-50 glassy rounded-lg shadow-lg p-16 w-full max-w-6xl relative">
+    <div class="relative z-10">
+      <div class="flex justify-between items-center mb-4">
+        <div class="text-gray-500">
+          <i class="fas fa-clock"></i>
+          <span class="" id="timer">90:00</span>
+        </div>
+      </div>
+      <div class="text-center mb-6">
+        <span id="question-number" class="bg-blue-200 text-blue-800 py-1 px-4 rounded-full hidden">Question 1 of 20</span>
+      </div>
+      <div id="question-container" class="hidden"></div>
+      <div class="flex justify-between mt-6" id="navigation-buttons">
+        <button id="back-button" class="oval-button bg-white text-black py-2 px-6 hidden">Back</button>
+        <button id="next-button" class="oval-button bg-white text-black py-2 px-6 hidden">Next</button>
+        <button id="submit-button" class="oval-button bg-white text-black py-2 px-6 hidden">Submit</button>
+      </div>
+      <div class="text-center">
+        <button id="start-button" class="oval-button bg-white text-black py-2 px-6">Start Quiz</button>
+      </div>
+      <div id="question-circles-container" class="flex justify-center mt-6 hidden"></div>
+      <div class="text-left mt-6">
+        <ul class="list-disc list-inside text-gray-700">
+          <li>+5 for right answers</li>
+          <li>-1 for every wrong answer</li>
+          <li>+0 for every unattempted question</li>
+          <li>33 marks will be considered pass</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
